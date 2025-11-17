@@ -138,3 +138,43 @@ Hibernate خودش این را اجرا می‌کند:
 - جلوگیری از مشکل در روابط (foreign keys)
 - امکان بازیابی داده
 - امنیت بالا
+
+## 🔍 چرا Boolean باعث NULL می‌شود؟
+چون Boolean شیء است.
+و Hibernate تشخیص نمی‌دهد که default = false مربوط به زبان جاواست.
+و Hibernate فقط دو نوع مقدار می‌شناسد:
+- مقدار explicitly ست شده
+- مقدار unset شده → تبدیل به NULL در DB
+
+و چون Hibernate این ستون را در INSERT نمی‌فرستد، نتیجه می‌شود NULL.
+اما اگر primitive (boolean) باشد، مقدار null ندارد و Hibernate مجبور است مقدار false را ارسال کند.
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted = false;
+
+#### ✔  و Entity را بهتر بنویس
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted = false;
+
+کات مهم:
+
+- از boolean استفاده کن نه Boolean
+
+- Hibernate با primitive بهتر رفتار می‌کند
+
+- Boolean باعث Nullable شدن ستون می‌شود
+#### ✔  اگر می‌خواهی Hibernate خودش جدول را درست بسازد:
+در Entity بگذار:
+
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "NUMBER(1) DEFAULT 0")
+    private boolean deleted = false;
+
+این باعث می‌شود Hibernate در DDL چنین چیزی بسازد:
+
+    is_deleted NUMBER(1) default 0 not null
+
+
+    
+
+
