@@ -28,8 +28,8 @@ Hibernate یک DELETE واقعی در دیتابیس اجرا می‌کند و �
 
 و به‌جای delete، مقدار آن را true می‌کنیم.
 
-### 🟢 Hibernate کاملاً از Soft Delete پشتیبانی می‌کند
-Hibernate چند Annotation رسمی دارد:
+### 🟢 به عبارتی Hibernate کاملاً از Soft Delete پشتیبانی می‌کند
+و اینکه Hibernate چند Annotation رسمی دارد:
 
 ### 1️⃣ @SQLDelete
 وقتی دستور DELETE زدیم، Hibernate به‌جای DELETE واقعی، یک UPDATE اجرا می‌کند.
