@@ -6,7 +6,7 @@
 
 در حالت عادی وقتی یک رکورد را حذف می‌کنیم:
 
-entityManager.remove(person);
+    entityManager.remove(person);
 
 
 Hibernate یک DELETE واقعی در دیتابیس اجرا می‌کند و ردیف برای همیشه حذف می‌شود.
@@ -22,7 +22,8 @@ Hibernate یک DELETE واقعی در دیتابیس اجرا می‌کند و �
 ### 💡 Soft Delete = رکورد را حذف واقعی نمی‌کنیم، فقط غیرفعالش می‌کنیم
 
 معمولاً یک ستون به جدول اضافه می‌کنیم:
-is_deleted BOOLEAN DEFAULT false
+    
+    is_deleted BOOLEAN DEFAULT false
 
 
 و به‌جای delete، مقدار آن را true می‌کنیم.
@@ -33,19 +34,19 @@ Hibernate چند Annotation رسمی دارد:
 ### 1️⃣ @SQLDelete
 وقتی دستور DELETE زدیم، Hibernate به‌جای DELETE واقعی، یک UPDATE اجرا می‌کند.
 
-@Entity
-@SQLDelete(sql = "UPDATE person SET is_deleted = true WHERE id = ?")
-@Where(clause = "is_deleted = false")
-public class Person {
-@Id
-private Long id;
-
-    private String name;
-
-    private String city;
-
-    private boolean isDeleted = false;
-}
+    @Entity
+    @SQLDelete(sql = "UPDATE person SET is_deleted = true WHERE id = ?")
+    @Where(clause = "is_deleted = false")
+    public class Person {
+    @Id
+    private Long id;
+    
+        private String name;
+    
+        private String city;
+    
+        private boolean isDeleted = false;
+    }
 
 
 ### ✨ اینجا چه اتفاقی می‌افتد؟
@@ -62,11 +63,11 @@ UPDATE person SET is_deleted = true WHERE id = ?
 #### 🔸 2) هنگام SELECT
 به‌خاطر این خط:
 
-@Where(clause = "is_deleted = false")
+    @Where(clause = "is_deleted = false")
 
 Hibernate فقط رکوردهای حذف‌ نشده را می‌خواند:
 
-SELECT * FROM person WHERE is_deleted = false
+    SELECT * FROM person WHERE is_deleted = false
 
 به صورت خودکار.
 
