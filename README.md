@@ -1,7 +1,8 @@
 # JDBC CRUD Demo Hibernate
 
 [🇮🇷 logicaldelete فارسی_درباره ](./README.fa.md)
-
+[🇮🇷 recordversion فارسی_درباره ](./README_recordversion.fa.md)
+[🇮🇷 pessimisticLocking فارسی_درباره ](./README_pessimisticLocking.fa.md)
 
 This project is a simple Java CRUD application built with JPA and Hibernate ORM to demonstrate how database operations can be performed using object-relational mapping instead of plain JDBC.
 ---
