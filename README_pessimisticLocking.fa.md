@@ -36,5 +36,85 @@ Session 2:
 → این Session روی همان رکورد «Block» می‌شود و صبر می‌کند.
 
 پس:
+
 🔵 اگر Session1 → Commit کند → Session2 ادامه می‌دهد
+
 🔴 اگر Session1 → Rollback کند → باز Session2 ادامه می‌دهد
+
+### 🟦 2) FOR UPDATE NOWAIT
+
+این حکم می‌گوید:
+
+❗ اگر رکورد قفل بود → «اصلاً صبر نکن»، سریع خطا بده
+
+رفتار آن:
+
+- اگر رکورد آزاد باشد → قفل می‌شود
+
+- اگر رکورد قفل باشد → ORA-00054: resource busy and acquire with NOWAIT specified
+
+#### 🔸 مثال:
+
+Session 1:
+    
+    SELECT * FROM PERSON WHERE ID = 5 FOR UPDATE;
+
+Session 2:
+
+    SELECT * FROM PERSON WHERE ID = 5 FOR UPDATE NOWAIT;
+
+→ نتیجه:
+
+❌ خطا:
+
+
+    ORA-00054: resource busy and acquire with NOWAIT specified
+
+### 🟦 استفاده در Hibernate
+
+#### ✔ FOR UPDATE معمولی:
+
+    Person p = em.find(
+    Person.class,
+    id,
+    LockModeType.PESSIMISTIC_WRITE
+    );
+
+اینجا Hibernate این را در Oracle تبدیل می‌کند به:
+
+    SELECT ... FOR UPDATE
+
+### ✔ استفاده از FOR UPDATE NOWAIT در Hibernate
+
+    Map<String, Object> props = new HashMap<>();
+    props.put("javax.persistence.lock.timeout", 0);  // NOWAIT
+
+    Person p = em.find(
+    Person.class,
+    id,
+    LockModeType.PESSIMISTIC_WRITE,
+    props
+    );
+
+تبدیل می‌شود به:
+
+    SELECT ... FOR UPDATE NOWAIT
+
+### 🟦 چه زمانی از کدام استفاده می‌کنیم؟
+
+#### ✔ از FOR UPDATE
+برای جایی که کاربر می‌تواند چند ثانیه صبر کند:
+- عملیات مالی غیرفوری
+- سیستم‌های داخلی
+- بیزنس‌هایی که Conflict کم دارند
+
+#### ✔ از FOR UPDATE NOWAIT
+
+برای سیستم‌هایی که باید فوری جواب بدهند:
+مثل:
+- رزرو بلیت
+- رزرو اتاق هتل
+- خرید محصول محدود
+- ثبت سفارش هم‌زمان
+- جلوگیری از double-submission
+
