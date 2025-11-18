@@ -1,7 +1,9 @@
 package org.j2os.project;
 
 import org.j2os.project.entity.Person;
+import org.j2os.project.repository.PersonPessimisticLockingRepository;
 import org.j2os.project.repository.PersonRepository;
+import org.j2os.project.service.PersonPessimisticLockingService;
 import org.j2os.project.service.PersonService;
 import org.j2os.project.service.PersonServiceEdited;
 import org.j2os.project.service.PersonServiceLogicalDeleted;
@@ -71,25 +73,48 @@ public class Main {
         //--------------- Optimistic Locking → Retry → Fresh Read → Merge ---------------
 
 
-        //--------------- logicaldelete ---------------
-        PersonRepository repository = new PersonRepository();
-        PersonServiceLogicalDeleted service = new PersonServiceLogicalDeleted(repository);
+//        //--------------- logicaldelete ---------------
+//        PersonRepository repository = new PersonRepository();
+//        PersonServiceLogicalDeleted service = new PersonServiceLogicalDeleted(repository);
+//
+//        Person person = Person.builder().name("Monireh11").family("Jamshidi11").city("Vienna11").build();
+//
+//        service.save(person);
+//
+//        service.delete(person.getId());// soft delete
+//
+//        System.out.println("Deleted list: " + service.findDeleted());
+//
+//        service.restore(person.getId());
+//
+//        System.out.println("Active list: " + service.findAll());
+//        service.findAll().forEach(p -> System.out.println(p.getId() + ", " + p.getName() + ", " + p.getFamily() + ", " + p.getCity()));
+//
+//        //--------------- logicaldelete ---------------
 
-        Person person = Person.builder().name("Monireh11").family("Jamshidi11").city("Vienna11").build();
+        //--------------- Pessimistic Locking ---------------
+        PersonPessimisticLockingRepository repository1 = new PersonPessimisticLockingRepository();
+        PersonPessimisticLockingService service1 = new PersonPessimisticLockingService(repository1);
 
-        service.save(person);
+        // ذخیره اولیه
+        Person p = Person.builder().name("Monire").family("Jamshidi").city("Vienna").build();
+        service1.save(p);
 
-        service.delete(person.getId());// soft delete
+        // کاربر ۱ → رکورد را قفل می‌کند
+        new Thread(() -> {
+            service1.updateWithLock(p.getId(), "A-Name", "Graz");
+        }).start();
 
-        System.out.println("Deleted list: " + service.findDeleted());
+        // کاربر ۲ → NOWAIT → فوراً خطا
+        new Thread(() -> {
+            try {
+                Thread.sleep(200); // کمی دیرتر وارد شود
+                service1.updateWithNoWait(p.getId(), "B-Name", "Linz");
+            } catch (Exception e){
 
-        service.restore(person.getId());
+            }
+        }).start();
 
-        System.out.println("Active list: " + service.findAll());
-        service.findAll().forEach(p -> System.out.println(p.getId() + ", " + p.getName() + ", " + p.getFamily() + ", " + p.getCity()));
-
-
-
-        //--------------- logicaldelete ---------------
+        //--------------- Pessimistic Locking ---------------
     }
 }
