@@ -15,9 +15,10 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@SequenceGenerator(name = "personSeq", sequenceName = "PERSON_SEQ")
 public class Person {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "personSeq")
     @Column(columnDefinition = "NUMBER")
     private long id;
 
@@ -36,6 +37,10 @@ public class Person {
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "NUMBER(1) DEFAULT 0")
     private boolean deleted = false;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "car_id")
+    private Car car;
 
     public Person(String name, String family, String city){
         this.name = name;

@@ -1,5 +1,6 @@
 package org.j2os.project;
 
+import org.j2os.project.entity.Car;
 import org.j2os.project.entity.Person;
 import org.j2os.project.repository.PersonPessimisticLockingRepository;
 import org.j2os.project.repository.PersonRepository;
@@ -7,6 +8,8 @@ import org.j2os.project.service.PersonPessimisticLockingService;
 import org.j2os.project.service.PersonService;
 import org.j2os.project.service.PersonServiceEdited;
 import org.j2os.project.service.PersonServiceLogicalDeleted;
+
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -93,28 +96,42 @@ public class Main {
 //        //--------------- logicaldelete ---------------
 
         //--------------- Pessimistic Locking ---------------
-        PersonPessimisticLockingRepository repository1 = new PersonPessimisticLockingRepository();
-        PersonPessimisticLockingService service1 = new PersonPessimisticLockingService(repository1);
-
-        // ذخیره اولیه
-        Person p = Person.builder().name("Monire").family("Jamshidi").city("Vienna").build();
-        service1.save(p);
-
-        // کاربر ۱ → رکورد را قفل می‌کند
-        new Thread(() -> {
-            service1.updateWithLock(p.getId(), "A-Name", "Graz");
-        }).start();
-
-        // کاربر ۲ → NOWAIT → فوراً خطا
-        new Thread(() -> {
-            try {
-                Thread.sleep(200); // کمی دیرتر وارد شود
-                service1.updateWithNoWait(p.getId(), "B-Name", "Linz");
-            } catch (Exception e){
-
-            }
-        }).start();
+//        PersonPessimisticLockingRepository repository1 = new PersonPessimisticLockingRepository();
+//        PersonPessimisticLockingService service1 = new PersonPessimisticLockingService(repository1);
+//
+//        // ذخیره اولیه
+//        Person p = Person.builder().name("Monire").family("Jamshidi").city("Vienna").build();
+//        service1.save(p);
+//
+//        // کاربر ۱ → رکورد را قفل می‌کند
+//        new Thread(() -> {
+//            service1.updateWithLock(p.getId(), "A-Name", "Graz");
+//        }).start();
+//
+//        // کاربر ۲ → NOWAIT → فوراً خطا
+//        new Thread(() -> {
+//            try {
+//                Thread.sleep(200); // کمی دیرتر وارد شود
+//                service1.updateWithNoWait(p.getId(), "B-Name", "Linz");
+//            } catch (Exception e){
+//
+//            }
+//        }).start();
 
         //--------------- Pessimistic Locking ---------------
+        //--------------- Test OneToOne ---------------
+        Car car = Car.builder().model("C22").build();
+        Person personNew = Person.builder().name("U_name22").family("U_family22").city("U_city22").car(car).build();
+        PersonServiceEdited.save(personNew);
+
+
+        PersonRepository repository = new PersonRepository();
+        PersonServiceLogicalDeleted service = new PersonServiceLogicalDeleted(repository);
+        List<Person> personList = service.findAll();
+        personList.forEach(person -> System.out.println(person.getName() + " - " + " - " + person.getFamily() + " - " + person.getCity() + " - " + person.getCar().getModel()));
+
+
+
+        //--------------- Test OneToOne ---------------
     }
 }
